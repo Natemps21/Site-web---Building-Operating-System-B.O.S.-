@@ -1,0 +1,93 @@
+.mainContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 87vh;
+  background: linear-gradient(to bottom, #2d3146 0%, #171924 100%);
+}
+
+.iconBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  margin: 0 auto 40px;
+  transition: all .4s cubic-bezier(.25,.85,.23,.99);
+}
+
+.floorBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+  background: rgba(220,220,255,0.13);
+  box-shadow: 0px 4px 20px 0px rgba(85,87,103,0.16);
+  border-radius: 19px;
+  padding: 22px 32px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #e4ebfa;
+  cursor: pointer;
+  opacity: 0.68;
+  filter: blur(0px);
+  transform: scale(1);
+  transition: all .27s cubic-bezier(.18,.82,.5,1.2);
+  position: relative;
+}
+
+.floorBtn:hover, .floorBtn:focus-visible, .floorBtn.selected {
+  opacity: 1;
+  filter: none;
+  box-shadow: 0px 10px 40px 10px #00aaff46;
+  background: linear-gradient(135deg, #1870ed8b 0%, #00cbe685 100%);
+  transform: scale(1.08);
+  z-index: 2;
+}
+
+.floorBtn.selected {
+  border: 2.5px solid #00f6bc;
+  box-shadow: 0px 5px 35px 2px #00f6bb66 inset, 0px 10px 44px 4px #00d0bc22;
+}
+
+.floorIcon {
+  width: 68px;
+  height: 68px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: 0 3px 26px #1dfbe944, 0 1px 1.7px #68ffff18;
+  background: #253f49;
+}
+
+.iconFullBldg {
+  display: block;
+  width: 68px; height: 68px;
+  background: url('/icons/batiment.svg') center/contain no-repeat;
+  margin-bottom: 10px;
+  opacity: .85;
+}
+
+.dashboard {
+  width: 95vw;
+  min-height: 220px;
+  max-width: 1050px;
+  margin-top: 35px;
+  padding: 26px 38px;
+  background: #222531d9;
+  border-radius: 22px;
+  box-shadow: 0px 6px 50px 13px #1088bb1f, 0 1.5px 9.5px #3df7fc31;
+  color: #eaf6fe;
+}
+
+.empty {
+  text-align: center;
+  font-size: 1.5rem;
+  font-style: italic;
+  color: #8ad6e6bd;
+  opacity: 0.8;
+  padding: 40px 0;
+}
+
+

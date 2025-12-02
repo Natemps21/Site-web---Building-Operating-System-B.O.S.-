@@ -1,0 +1,144 @@
+/* POLICE - Apple */
+body, html, #root {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "SF Pro Display", system-ui, sans-serif;
+  font-weight: 400;
+  color: #e6f2ff;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* La structure globale du wrapper */
+.wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  margin: 32px 0 0 220px;
+  padding: 24px;
+  min-height: 70vh;
+}
+
+/* Bloc “section” brut/clean */
+.section {
+  flex: 1;
+  background: #222a37;             /* Foncé - bien intégré au fond bleu site */
+  border-radius: 16px;
+  box-shadow: 0 3px 18px #19397818;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  margin-bottom: 16px;
+  font-size: 1.5rem;
+  color: #f2f6fa;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.table {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #22406d44;
+  font-size: 1.1rem;
+  transition: background 0.13s;
+  color: #d4e7fc;
+}
+.row:hover {
+  background: #27496d22;           /* Hover bleuté, subtil */
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #fc7373;                  /* Rouge pâle visible sur fond foncé */
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 0.17s;
+}
+.deleteBtn:hover {
+  background: #93333327;
+}
+
+.buttonBrowse {
+  background: #26496d;             /* Bleu sombre site */
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 7px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  margin-right: 14px;
+  margin-bottom: 8px;
+  display: inline-block;
+  transition: background 0.19s, box-shadow 0.19s;
+  text-align: center;
+  box-shadow: 0 2px 12px #27496d33;
+}
+.buttonBrowse:hover {
+  background: #193978;
+  box-shadow: 0 4px 20px #19397844;
+}
+.fileInput {
+  display: none;
+}
+
+/* Ligne d'action (“Nettoyer”) centrée */
+.actionsRow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  bottom: 30px;
+  width: 100%;
+  z-index: 2;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 40px;
+}
+
+/* BOUTON NETTOYAGE - DA du site */
+.buttonAction {
+  background: linear-gradient(95deg, #26496d 50%, #3fa2f7 100%); /* Bleu gradient premium */
+  color: #fff;
+  padding: 14px 120px;
+  border-radius: 26px;
+  font-size: 1.19rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 24px #27496d47, 0 2px 8px #3fa2f733;
+  transition: background 0.19s, box-shadow 0.14s;
+  margin-bottom: 0;
+  letter-spacing: 0.03em;
+}
+
+.buttonAction:hover {
+  background: linear-gradient(85deg, #193978 60%, #388be6 100%);
+  box-shadow: 0 8px 30px #2c72b666;
+}
+
+/* COULEURS DES ROWS "brut" et "clean" pour bien voir sur fond clair */
+.table .row.brut {
+  background: #174c2f16;
+  color: #ddffe0;
+}
+.table .row.clean {
+  background: #11416d23;
+  color: #daeaff;
+}
+
+/* Perso pour distinguer brut/clean dans la table si tu ajoutes la classe dynamiquement */

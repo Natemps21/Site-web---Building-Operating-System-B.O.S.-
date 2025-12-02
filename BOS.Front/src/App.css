@@ -1,0 +1,89 @@
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Police ultra premium Apple */
+body, html, #root {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "SF Pro Display", system-ui, sans-serif;
+  font-weight: 400;
+  color: #e6f2ff;  /* Garde ta couleur premium */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #17233d 0%, #26496d 100%);
+}
+
+/* Titres & boutons, style Apple */
+h1, h2, h3, h4, h5, h6, button {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                "SF Pro Display", system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #e6f2ff;
+}
+
+/* Layout */
+.homeWrapper {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroTitle {
+  font-size: 3rem;
+  margin-bottom: 32px;
+  text-align: center;
+  text-shadow: 0 4px 30px #111a3c55, 0 1px 1px #4feaff33;
+  letter-spacing: 0.11em;
+}
+
+/* Canvas container premium */
+.canvasBlock {
+  width: 100%;
+  height: 62vh;
+  min-height: 400px;
+  max-width: 1240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 95px 22px #00181e33, 0 1.5px 8.5px #58b7fc41;
+  background: #20293aee;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1.5px solid #19397833;
+  transition: box-shadow 0.22s;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Canvas responsive 100% */
+.canvasBlock canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Optionnel : bouton hover premium */
+button {
+  transition: box-shadow 0.17s, background 0.14s;
+  border-radius: 8px;
+  background: #26496d;
+  color: #e6f2ff;
+  border: none;
+  padding: 0.7em 2em;
+  box-shadow: 0px 3px 14px #19397833;
+  font-size: 1.07em;
+  cursor: pointer;
+}
+button:hover {
+  background: #193978;
+  box-shadow: 0px 6px 28px #19397844;
+}

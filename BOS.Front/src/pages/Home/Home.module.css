@@ -1,0 +1,55 @@
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.homeWrapper {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #17233d 0%, #26496d 100%);
+}
+
+.heroTitle {
+  font-size: 3rem;
+  letter-spacing: 0.11em;
+  font-weight: bold;
+  margin-bottom: 32px;
+  color: #e6f2ff;
+  text-align: center;
+  text-shadow: 0 4px 30px #111a3c55, 0 1px 1px #4feaff33;
+}
+
+/* LA solution : force la taille */
+.canvasBlock {
+  width: 100%;
+  /* taille visuelle adaptée à l'écran : */
+  height: 62vh;
+  min-height: 400px;
+  max-width: 1240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 95px 22px #00181e33, 0 1.5px 8.5px #58b7fc41;
+  background: #20293aee;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1.5px solid #19397833;
+  transition: box-shadow 0.22s;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Force le canvas à occuper tout le block */
+.canvasBlock canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}

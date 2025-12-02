@@ -1,0 +1,44 @@
+# ==========================
+# 1. SÉCURITÉ 
+# ==========================
+.env
+.env.local
+.env.*.local
+
+!.env.example
+
+# ==========================
+# 2. FRONTEND (NodeJS / React)
+# ==========================
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================
+# 3. BACKEND (.NET / C#)
+# ==========================
+
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.jfm
+appsettings.Development.json
+
+
+Fichier_Log/*
+!Fichier_Log/.gitkeep
+
+# ==========================
+# 5. SYSTÈME & IDE
+# ==========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

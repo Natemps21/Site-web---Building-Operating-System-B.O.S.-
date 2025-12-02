@@ -1,0 +1,266 @@
+using Microsoft.AspNetCore.Mvc;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Text.Json;
+using System.Collections.Generic;
+using System.Linq;
+using System.Globalization;
+
+namespace BOS.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FileManagerController : ControllerBase
+    {
+        private readonly string brutFolder      = @"C:\Users\Utilisateur\OneDrive\Bureau\BOS\Fichier_Brut";
+        private readonly string cleanFolder     = @"C:\Users\Utilisateur\OneDrive\Bureau\BOS\Fichier_Clean";
+        private readonly string logFileFolder   = @"C:\Users\Utilisateur\OneDrive\Bureau\BOS\Fichier_Log";
+        private readonly string logFile         = @"C:\Users\Utilisateur\OneDrive\Bureau\BOS\Fichier_Log\action_log.json";
+        private readonly string refFile         = @"C:\Users\Utilisateur\OneDrive\Bureau\BOS\Fichier_Ref\Fichier_Ref.csv";
+
+        private Dictionary<string, (string alias, string designation)> roomRef;
+
+        public FileManagerController()
+        {
+            if (!Directory.Exists(logFileFolder))
+                Directory.CreateDirectory(logFileFolder);
+        }
+
+        private List<string> LastActions
+        {
+            get
+            {
+                try
+                {
+                    if (System.IO.File.Exists(logFile))
+                        return JsonSerializer.Deserialize<List<string>>(System.IO.File.ReadAllText(logFile)) ?? new List<string>();
+                }
+                catch { }
+                return new List<string>();
+            }
+            set
+            {
+                try
+                {
+                    System.IO.File.WriteAllText(logFile, JsonSerializer.Serialize(value));
+                }
+                catch { }
+            }
+        }
+
+        private void AjouterLog(string s)
+        {
+            Console.WriteLine("[BACKEND][LOG] " + s);
+            var acts = LastActions;
+            acts.Insert(0, $"{System.DateTime.Now:yyyy-MM-dd HH:mm:ss} - {s}");
+            if (acts.Count > 5) acts = acts.Take(5).ToList();
+            LastActions = acts;
+        }
+
+        [HttpGet("brut/files")]
+        public IActionResult GetBrutFiles()
+        {
+            var files = Directory.GetFiles(brutFolder)
+                                 .Select(Path.GetFileName)
+                                 .ToList();
+            return Ok(files);
+        }
+
+        [HttpPost("brut/upload")]
+        public async Task<IActionResult> UploadBrut([FromForm] List<IFormFile> files)
+        {
+            if (files == null || !files.Any())
+            {
+                AjouterLog("Échec upload brut : Aucun fichier.");
+                return BadRequest("Aucun fichier reçu.");
+            }
+
+            foreach (var file in files)
+            {
+                var filePath = Path.Combine(brutFolder, Path.GetFileName(file.FileName));
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                AjouterLog("Importé dans brut : " + file.FileName);
+            }
+            return Ok();
+        }
+
+        [HttpDelete("brut/file")]
+        public IActionResult DeleteBrutFile([FromQuery] string name)
+        {
+            var filePath = Path.Combine(brutFolder, name);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                AjouterLog("Supprimé du brut : " + name);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        [HttpGet("clean/files")]
+        public IActionResult GetCleanFiles()
+        {
+            var files = Directory.GetFiles(cleanFolder)
+                                 .Select(Path.GetFileName)
+                                 .ToList();
+            return Ok(files);
+        }
+
+        [HttpDelete("clean/file")]
+        public IActionResult DeleteCleanFile([FromQuery] string name)
+        {
+            var filePath = Path.Combine(cleanFolder, name);
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+                AjouterLog("Supprimé du clean : " + name);
+                return Ok();
+            }
+            return NotFound();
+        }
+
+        [HttpPost("nettoyer")]
+        public IActionResult Nettoyer([FromQuery] bool overwrite = false)
+        {
+            var filesBrut = Directory.GetFiles(brutFolder);
+            var filesClean = Directory.GetFiles(cleanFolder).Select(Path.GetFileName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var filesToTransform = new List<(string Source, string Target)>();
+            var created = new List<string>();
+            var alreadyExist = new List<string>();
+
+            foreach (var file in filesBrut)
+            {
+                var name = Path.GetFileName(file);
+                if (!name.StartsWith("temperature_", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                var match = Regex.Match(name, @"^(temperature_.+?)_([A-Za-z]+)\s(\d{4})\.csv$", RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    var baseName = match.Groups[1].Value;
+                    var monthAlpha = match.Groups[2].Value;
+                    var year = match.Groups[3].Value;
+                    var date = DateTime.TryParseExact(monthAlpha + " " + year, "MMMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt);
+                    string month = date ? dt.Month.ToString("D2") : "??";
+                    string yy = date ? dt.ToString("yy") : year.Substring(2, 2);
+                    var targetName = $"{baseName}_{month}_{yy}_clean.csv";
+                    filesToTransform.Add((file, targetName));
+                    if (filesClean.Contains(targetName))
+                        alreadyExist.Add(targetName);
+                }
+            }
+
+            if (filesToTransform.Count == 0)
+            {
+                AjouterLog("Aucun fichier temperature à transformer.");
+                return Ok(new { status = "no-file", message = "Aucun fichier temperature à traiter.", lastActions = LastActions });
+            }
+            if (alreadyExist.Count > 0 && !overwrite)
+            {
+                AjouterLog("Collision sur : " + string.Join(", ", alreadyExist));
+                return Ok(new { status = "already-exist", alreadyExist, message = "Certains fichiers existent déjà dans clean.", lastActions = LastActions });
+            }
+
+            ChargerFichierRef();
+
+            foreach (var (src, tgt) in filesToTransform)
+            {
+                var dest = Path.Combine(cleanFolder, tgt);
+                try
+                {
+                    NettoyerCsvTemperature(src, dest);
+                    created.Add(tgt);
+                    AjouterLog($"{(overwrite ? "Écrasé/nettoyé" : "Importé/nettoyé")} : {tgt}");
+                }
+                catch (Exception ex)
+                {
+                    AjouterLog($"Erreur sur {tgt} : {ex.Message}");
+                }
+            }
+            if (created.Count > 0)
+                AjouterLog("Nettoyage réussi : " + string.Join(", ", created));
+            return Ok(new { status = "ok", created, lastActions = LastActions });
+        }
+
+        private void ChargerFichierRef()
+        {
+            roomRef = new Dictionary<string, (string alias, string designation)>();
+            if (!System.IO.File.Exists(refFile)) return;
+            using var reader = new StreamReader(refFile);
+            var header = reader.ReadLine();
+            var cols = header.Split(';');
+            int idxName    = Array.IndexOf(cols, "Name");
+            int idxAliases = 8;   // 8ème colonne (index 8) pour aliases
+            int idxDesign  = 13;  // 13ème colonne (index 13) pour designation
+
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var parts = line.Split(';');
+                if (parts.Length <= Math.Max(idxName, Math.Max(idxAliases, idxDesign))) continue;
+                var room = parts[idxName].Trim();
+                var alias = parts[idxAliases].Trim().Replace("\"", "");
+                var designation = parts[idxDesign].Trim().Replace("\"", "");
+                if (!string.IsNullOrEmpty(room))
+                    roomRef[room] = (alias, designation);
+            }
+        }
+
+        private void NettoyerCsvTemperature(string fileIn, string fileOut)
+        {
+            using var reader = new StreamReader(fileIn);
+            using var writer = new StreamWriter(fileOut, false);
+            var header = reader.ReadLine();
+            var cols = header.Split(",");
+            int offset = 0;
+            if (string.IsNullOrWhiteSpace(cols[0])) offset = 1;
+
+            int idxTimestamp = Array.IndexOf(cols, "timestamp");
+            int idxSensorId  = Array.IndexOf(cols, "sensor id");
+            int idxTemp      = Array.IndexOf(cols, "temperature");
+            int idxRoom      = Array.IndexOf(cols, "room");
+            int idxFloor     = Array.IndexOf(cols, "floor");
+            int idxZone      = Array.IndexOf(cols, "zone");
+
+            writer.WriteLine("timestamp,sensor_uid,temperature,isValidSensor,room,floor,zone,alias,designation");
+
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                var parts = line.Split(",");
+                if (parts.Length < Math.Max(idxZone, idxTemp) + 1) continue;
+
+                string timestamp = parts[idxTimestamp];
+                string sensorid  = parts[idxSensorId];
+                string tempRaw   = parts[idxTemp];
+                string room      = parts[idxRoom];
+                string floor     = parts[idxFloor];
+                string zone      = parts[idxZone];
+
+                string sourceId = sensorid;
+                var matchUid = Regex.Match(sensorid, @"/OnDijon_Center_01/([A-Za-z0-9]+)_AvgTemperature");
+                if (matchUid.Success)
+                    sourceId = matchUid.Groups[1].Value;
+
+                string temp = tempRaw.Replace(",", ".");
+                bool isValid = double.TryParse(temp, NumberStyles.Any, CultureInfo.InvariantCulture, out var tempVal) && tempVal != 0.0;
+
+                string alias = "";
+                string designation = "";
+                if (roomRef != null && roomRef.TryGetValue(room, out var tuple))
+                {
+                    alias = tuple.alias;
+                    designation = tuple.designation;
+                }
+
+                writer.WriteLine($"{timestamp},{sourceId},{tempRaw},{isValid},{room},{floor},{zone},{alias},{designation}");
+            }
+        }
+
+        [HttpGet("logactions")]
+        public IActionResult GetLastActions() => Ok(LastActions);
+    }
+}

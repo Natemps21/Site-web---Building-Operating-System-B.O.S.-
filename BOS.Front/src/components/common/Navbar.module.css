@@ -1,0 +1,64 @@
+.sidebarOpen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100vh;
+  background: #242731;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 5;
+  transition: width 0.2s;
+  box-shadow: 1px 0px 8px rgba(0,0,0,0.03);
+}
+
+.sidebarClosed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 56px;
+  height: 100vh;
+  background: #242731;
+  color: #fff;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: width 0.2s;
+  box-shadow: 1px 0px 8px rgba(0,0,0,0.03);
+}
+
+.burgerButton {
+  margin: 16px 0 8px 10px;
+  background: none;
+  color: #fff;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.menuLinks {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.menuLink {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  padding: 12px 24px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.menuLink:hover {
+  background: rgba(255,255,255,0.07);
+}
+
+.sidebarClosed .menuLinks {
+  display: none;
+}
